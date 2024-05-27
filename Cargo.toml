@@ -1,0 +1,11 @@
+[package]
+name = "glu"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gray_matter = "0.2.8"
+markdown = "1.0.0-alpha.16"
+safe-path = "0.1.0"
