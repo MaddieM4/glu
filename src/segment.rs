@@ -17,8 +17,8 @@ impl From<&Code> for Segment {
 
         return Segment {
             file_type: ftype,
-            file_name: "Not implemented".to_string(),
-            contents: item.value.clone(),
+            file_name: "filename.txt".to_string(),
+            contents: format!("{}\n", &item.value),
         }
     }
 }

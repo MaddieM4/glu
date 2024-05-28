@@ -7,6 +7,7 @@ use crate::segment::Segment;
 // There's probably a lot of room to improve performance by eliminating copy
 // operations in memory - the sloppiness is because I'm still learning Rust.
 // I promise it itches me, but this will probably always be adequate.
+// Realistically the bottleneck will be file IO.
 pub fn parse(md_text: &str) -> Vec<Segment> {
     // Per docs: cannot fail with MDX off
     let tree = to_mdast(md_text, &ParseOptions::default()).unwrap();
