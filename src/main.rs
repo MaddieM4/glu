@@ -3,7 +3,9 @@ use std::process::Command;
 
 use crate::parse::parse;
 use crate::writer::write_files;
+mod filetype;
 mod segment;
+mod segment_optimizer;
 mod parse;
 mod writer;
 
