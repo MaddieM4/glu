@@ -22,15 +22,9 @@ impl <'a> From<&'a Code> for SegmentOptimizer<'a> {
     }
 }
 
-impl <'a> SegmentOptimizer<'a> {
-    fn opt_indents(&mut self) {
-        let min_indent = find_min_indent(&self.lines);
-        self.lines = self.lines
-            .iter()
-            .map(|s| trim_indent(s, min_indent))
-            .collect();
-    }
-}
+// ----------------------------------------------------------------------------
+// Internal optimizers
+// ----------------------------------------------------------------------------
 
 fn find_min_indent(lines: &Vec<&str>) -> usize {
     lines
@@ -50,12 +44,58 @@ fn trim_indent<'a>(line: &'a str, amount: usize) -> &'a str {
     m.as_str()
 }
 
+fn fix_indents<'a>(lines: Vec<&'a str>) -> Vec<&'a str> {
+    let min_indent = find_min_indent(&lines);
+    lines.iter().map(|s| trim_indent(s, min_indent)).collect()
+}
+
+fn trim_empty_lines<'a>(lines: Vec<&'a str>) -> Vec<&'a str> {
+    if lines.is_empty() {
+        return lines;
+    }
+
+    let mut start: usize = 0;
+    let mut end: usize = lines.len()-1;
+    while start <= end && lines[start] == "" {
+        start = start + 1;
+    }
+    while end >= start && lines[end] == "" {
+        end = end - 1;
+    }
+
+    return lines[start..end+1].to_vec();
+}
+
+// ----------------------------------------------------------------------------
+// API for multi-strategy optimization
+// ----------------------------------------------------------------------------
+
+fn opt_once<'a>(so: &SegmentOptimizer<'a>) -> SegmentOptimizer<'a> {
+    // TODO: Maybe avoid some clones?
+    SegmentOptimizer {
+        lines: trim_empty_lines(fix_indents(so.lines.clone())),
+        inferred_type: so.inferred_type,
+        inferred_path: so.inferred_path.clone(),
+    }
+}
+
+// Optimize until settled
+fn optimize<'a>(so: SegmentOptimizer<'a>) -> SegmentOptimizer<'a> {
+    let mut prev = so;
+    let mut current = opt_once(&prev);
+    while current != prev {
+        prev = current;
+        current = opt_once(&prev);
+    }
+    return current;
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
-    fn from_code_empty() {
+    fn test_from_code_empty() {
         let code = Code {
             meta: None,
             position: None,
@@ -72,7 +112,7 @@ mod test {
 
 
     #[test]
-    fn from_code_populated() {
+    fn test_from_code_populated() {
         let code = Code {
             meta: None,
             position: None,
@@ -108,22 +148,76 @@ mod test {
     }
 
     #[test]
-    fn opt_indents() {
-        let mut so = SegmentOptimizer {
+    fn test_fix_indents() {
+        let lines = vec![
+            "    // foo.js",
+            "",
+            "    function foo() {",
+            "        console.log(100);",
+            "        ",
+            "    }",
+        ];
+
+        assert_eq!(fix_indents(lines), vec![
+            "// foo.js",
+            "",
+            "function foo() {",
+            "    console.log(100);",
+            "    ",
+            "}",
+        ]);
+    }
+
+
+    #[test]
+    fn test_trim_empty_lines() {
+        let lines = vec![
+            "",
+            "",
+            "// foo.js",
+            "",
+            "function foo() {",
+            "    console.log(100);",
+            "    ",
+            "}",
+            "",
+            "",
+            "",
+            "",
+        ];
+
+        assert_eq!(trim_empty_lines(lines), vec![
+            "// foo.js",
+            "",
+            "function foo() {",
+            "    console.log(100);",
+            "    ",
+            "}",
+        ]);
+    }
+
+    #[test]
+    fn test_optimize() {
+        let so = SegmentOptimizer {
             lines: vec![
+                "",
+                "",
                 "    // foo.js",
                 "",
                 "    function foo() {",
                 "        console.log(100);",
                 "        ",
                 "    }",
+                "    ",
+                "",
+                "",
+                "",
             ],
             inferred_type: FileType::JavaScript,
             inferred_path: None,
         };
 
-        so.opt_indents();
-        assert_eq!(so, SegmentOptimizer {
+        assert_eq!(optimize(so), SegmentOptimizer {
             lines: vec![
                 "// foo.js",
                 "",
