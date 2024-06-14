@@ -6,6 +6,7 @@ use crate::writer::write_files;
 mod filetype;
 mod segment;
 mod segment_optimizer;
+mod path_detection;
 mod parse;
 mod writer;
 
@@ -30,7 +31,7 @@ const foo = 'bar';
         .expect("Failed to wait for 'tree' to finish");
 
     Command::new("head")
-        .arg(tmp.path().join("filename.txt"))
+        .arg(tmp.path().join("some_file_name.js"))
         .spawn()
         .expect("Failed to spawn 'head' command")
         .wait()

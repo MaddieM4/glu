@@ -1,6 +1,7 @@
 use regex::Regex;
 use markdown::mdast::Code;
 use crate::filetype::FileType;
+use crate::path_detection::detect_path;
 
 #[derive(PartialEq, Debug)]
 pub struct SegmentOptimizer<'a> {
@@ -66,16 +67,37 @@ fn trim_empty_lines<'a>(lines: Vec<&'a str>) -> Vec<&'a str> {
     return lines[start..end+1].to_vec();
 }
 
+fn pop_line<'a>(n: usize, lines: &Vec<&'a str>) -> Vec<&'a str> {
+    let mut output = lines.clone();
+    output.remove(n);
+    return output;
+}
+
+fn path_detect_and_pop<'a>(ft: FileType, lines: &Vec<&'a str>) -> (Option<String>, Vec<&'a str>) {
+    let detection = detect_path(ft, lines);
+    match detection {
+        None => (None, lines.clone()),
+        Some(pd) => (Some(pd.path), pop_line(pd.line_number, lines)),
+    }
+}
+
 // ----------------------------------------------------------------------------
 // API for multi-strategy optimization
 // ----------------------------------------------------------------------------
 
 fn opt_once<'a>(so: &SegmentOptimizer<'a>) -> SegmentOptimizer<'a> {
     // TODO: Maybe avoid some clones?
+    let ft = so.inferred_type;
+    let tidied_lines = trim_empty_lines(fix_indents(so.lines.clone()));
+    let (path, lines) = match &so.inferred_path {
+        Some(p) => (Some(p.clone()), tidied_lines),
+        None => path_detect_and_pop(ft, &tidied_lines),
+    };
+
     SegmentOptimizer {
-        lines: trim_empty_lines(fix_indents(so.lines.clone())),
-        inferred_type: so.inferred_type,
-        inferred_path: so.inferred_path.clone(),
+        lines: lines,
+        inferred_type: ft,
+        inferred_path: path,
     }
 }
 
@@ -88,6 +110,12 @@ fn optimize<'a>(so: SegmentOptimizer<'a>) -> SegmentOptimizer<'a> {
         current = opt_once(&prev);
     }
     return current;
+}
+
+impl <'a> SegmentOptimizer<'a> {
+    pub fn optimize(self) -> SegmentOptimizer<'a> {
+        optimize(self)
+    }
 }
 
 #[cfg(test)]
@@ -197,6 +225,23 @@ mod test {
     }
 
     #[test]
+    fn test_path_detect_and_pop_empty() {
+        let lines = vec![];
+        let (found, remaining) = path_detect_and_pop(FileType::JavaScript, &lines);
+        assert_eq!(found, None);
+        assert_eq!(remaining, lines);
+    }
+
+    #[test]
+    fn test_path_detect_and_pop_real() {
+        let lines = vec!["// First line", "// foo.js", "// Third line"];
+        let (found, remaining) = path_detect_and_pop(FileType::JavaScript, &lines);
+        assert_eq!(found, Some("foo.js".to_string()));
+        assert_eq!(remaining, vec!["// First line", "// Third line"]);
+    }
+
+
+    #[test]
     fn test_optimize() {
         let so = SegmentOptimizer {
             lines: vec![
@@ -219,15 +264,13 @@ mod test {
 
         assert_eq!(optimize(so), SegmentOptimizer {
             lines: vec![
-                "// foo.js",
-                "",
                 "function foo() {",
                 "    console.log(100);",
                 "    ",
                 "}",
             ],
             inferred_type: FileType::JavaScript,
-            inferred_path: None,
+            inferred_path: Some("foo.js".to_string()),
         });
     }
 }
