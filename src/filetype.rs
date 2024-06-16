@@ -6,25 +6,25 @@ use regex::Regex;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum FileType {
-    Unknown,
-    JavaScript,
     Bash,
+    JavaScript,
+    Unknown,
 }
 
 impl From<&Option<String>> for FileType {
     fn from(item: &Option<String>) -> FileType {
         match &item {
-            None => FileType::Unknown,
             Some(s) => FileType::from(&s[..]),
+            None => FileType::Unknown,
         }
     }
 }
 impl From<&str> for FileType {
     fn from(item: &str) -> FileType {
         match item {
+            "bash" => FileType::Bash,
             "javascript" => FileType::JavaScript,
             "js" => FileType::JavaScript,
-            "bash" => FileType::Bash,
             _ => FileType::Unknown,
         }
     }
@@ -33,8 +33,8 @@ impl From<&str> for FileType {
 impl From<FileType> for String {
     fn from(item: FileType) -> String {
         match item {
-            FileType::JavaScript => "javascript",
             FileType::Bash => "bash",
+            FileType::JavaScript => "javascript",
             FileType::Unknown => "unknown",
         }.into()
     }
@@ -77,8 +77,8 @@ pub struct PathDetection {
 
 pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
     let pat: &str = match ft {
-        FileType::JavaScript => r"//\s*(\w.*\.js\b)",
         FileType::Bash => r"#\s*(\w.*\.sh\b)",
+        FileType::JavaScript => r"//\s*(\w.*\.js\b)",
         FileType::Unknown => return None,
     };
     let re = Regex::new(pat).expect("Failed to compile regex");
@@ -112,10 +112,27 @@ mod test {
     }
 
     #[test]
-    fn test_unknown() {
-        let ft = FileType::Unknown;
+    fn test_bash() {
+        let ft = FileType::Bash;
         check_none(ft, vec![]);
-        check_none(ft, vec!["Anything"]);
+        check_none(ft, vec![
+            "#!/bin/bash",
+            "echo hello world",
+        ]);
+
+        check_some(ft, 0, "script.sh", vec![
+            "# script.sh",
+            "",
+            "echo hello world",
+        ]);
+
+        check_some(ft, 1, "second_line.sh", vec![
+            "#!/bin/bash",
+            "# second_line.sh",
+            "set -ex",
+            "",
+            "echo hello world",
+        ]);
     }
 
     #[test]
@@ -163,26 +180,9 @@ mod test {
     }
 
     #[test]
-    fn test_bash() {
-        let ft = FileType::Bash;
+    fn test_unknown() {
+        let ft = FileType::Unknown;
         check_none(ft, vec![]);
-        check_none(ft, vec![
-            "#!/bin/bash",
-            "echo hello world",
-        ]);
-
-        check_some(ft, 0, "script.sh", vec![
-            "# script.sh",
-            "",
-            "echo hello world",
-        ]);
-
-        check_some(ft, 1, "second_line.sh", vec![
-            "#!/bin/bash",
-            "# second_line.sh",
-            "set -ex",
-            "",
-            "echo hello world",
-        ]);
+        check_none(ft, vec!["Anything"]);
     }
 }
