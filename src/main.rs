@@ -9,7 +9,6 @@ use crate::writer::write_files;
 mod filetype;
 mod segment;
 mod segment_optimizer;
-mod path_detection;
 mod parse;
 mod writer;
 

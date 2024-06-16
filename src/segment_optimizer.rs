@@ -1,7 +1,6 @@
 use regex::Regex;
 use markdown::mdast::Code;
-use crate::filetype::FileType;
-use crate::path_detection::detect_path;
+use crate::filetype::{FileType,detect_path};
 
 #[derive(PartialEq, Debug)]
 pub struct SegmentOptimizer<'a> {

@@ -57,7 +57,7 @@ Clone the directory, tinker, make a PR. If you've used Rust and Cargo before,
 it shouldn't be difficult or surprising. If it is, it's probably for reasons
 I'd have a hard time anticipating.
 
-Be aware that `src/path_detection.rs` is probably the thing most people will
+Be aware that `src/filetype.rs` is probably the thing most people will
 care about contributing to, to improve language support. I'll accept these PRs
 very gratefully, but only if they include relevant tests! There are examples
 you can use as a starting point, so that's not as hard as it sounds.
