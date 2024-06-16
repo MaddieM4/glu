@@ -20,7 +20,7 @@ struct CliArgs {
     mdfile: String,
 
     // Which command to run within the temp directory
-    #[arg(default_value_t = ("bash".to_string()))]
+    #[arg(default_value = "bash")]
     command: String
 }
 
