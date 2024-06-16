@@ -6,6 +6,7 @@ use regex::Regex;
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum FileType {
+    Asm,
     Bash,
     C,
     JavaScript,
@@ -23,6 +24,7 @@ impl From<&Option<String>> for FileType {
 impl From<&str> for FileType {
     fn from(item: &str) -> FileType {
         match item {
+            "asm" => FileType::Asm,
             "bash" => FileType::Bash,
             "c" => FileType::C,
             "javascript" => FileType::JavaScript,
@@ -35,6 +37,7 @@ impl From<&str> for FileType {
 impl From<FileType> for String {
     fn from(item: FileType) -> String {
         match item {
+            FileType::Asm => "asm",
             FileType::Bash => "bash",
             FileType::C => "c",
             FileType::JavaScript => "javascript",
@@ -80,6 +83,7 @@ pub struct PathDetection {
 
 pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
     let pat: &str = match ft {
+        FileType::Asm => r";\s*(\w.*\.(s|asm)\b)",
         FileType::Bash => r"#\s*(\w.*\.sh\b)",
         FileType::C => r"//\s*(\w.*\.(c|h)\b)",
         FileType::JavaScript => r"//\s*(\w.*\.js\b)",
@@ -113,6 +117,26 @@ mod test {
 
     fn check_none(ft: FileType, lines: Vec<&str>) {
         assert_eq!(detect_path(ft, &lines), None);
+    }
+
+    #[test]
+    fn test_asm() {
+        let ft = FileType::Asm;
+        check_none(ft, vec![]);
+        check_none(ft, vec![
+            ".intel_syntax noprefix",
+        ]);
+
+        check_some(ft, 0, "foo.asm", vec![
+            "; foo.asm",
+            "",
+            ".intel_syntax noprefix",
+        ]);
+
+        check_some(ft, 1, "bar.s", vec![
+            ".intel_syntax noprefix",
+            "; bar.s",
+        ]);
     }
 
     #[test]

@@ -58,7 +58,9 @@ parity with the language support list of [PrismJS](https://prismjs.com/#supporte
 for the semi-arbitrary reason that Obsidian uses it, and I write my Markdown
 docs in Obsidian most of the time.
 
+ * Assembly
  * Bash
+ * C
  * JavaScript
 
 ### Contributing
