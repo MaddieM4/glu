@@ -7,6 +7,7 @@ use regex::Regex;
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum FileType {
     Bash,
+    C,
     JavaScript,
     Unknown,
 }
@@ -23,6 +24,7 @@ impl From<&str> for FileType {
     fn from(item: &str) -> FileType {
         match item {
             "bash" => FileType::Bash,
+            "c" => FileType::C,
             "javascript" => FileType::JavaScript,
             "js" => FileType::JavaScript,
             _ => FileType::Unknown,
@@ -34,6 +36,7 @@ impl From<FileType> for String {
     fn from(item: FileType) -> String {
         match item {
             FileType::Bash => "bash",
+            FileType::C => "c",
             FileType::JavaScript => "javascript",
             FileType::Unknown => "unknown",
         }.into()
@@ -78,6 +81,7 @@ pub struct PathDetection {
 pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
     let pat: &str = match ft {
         FileType::Bash => r"#\s*(\w.*\.sh\b)",
+        FileType::C => r"//\s*(\w.*\.(c|h)\b)",
         FileType::JavaScript => r"//\s*(\w.*\.js\b)",
         FileType::Unknown => return None,
     };
@@ -132,6 +136,28 @@ mod test {
             "set -ex",
             "",
             "echo hello world",
+        ]);
+    }
+
+    #[test]
+    fn test_c() {
+        let ft = FileType::C;
+        check_none(ft, vec![]);
+        check_none(ft, vec![
+            "#define FOO 1",
+        ]);
+
+        check_some(ft, 0, "main.c", vec![
+            "// main.c",
+            "",
+            "#define FOO 1",
+        ]);
+
+        check_some(ft, 1, "header.h", vec![
+            "// A header file",
+            "// header.h",
+            "",
+            "#define FOO 1",
         ]);
     }
 
