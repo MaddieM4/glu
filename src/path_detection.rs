@@ -10,6 +10,7 @@ pub struct PathDetection {
 pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
     let pat: &str = match ft {
         FileType::JavaScript => r"//\s*(\w.*\.js\b)",
+        FileType::Bash => r"#\s*(\w.*\.sh\b)",
         FileType::Unknown => return None,
     };
     let re = Regex::new(pat).expect("Failed to compile regex");
@@ -90,6 +91,30 @@ mod test {
             "    console.log(100);",
             "    ",
             "}",
+        ]);
+    }
+
+    #[test]
+    fn test_bash() {
+        let ft = FileType::Bash;
+        check_none(ft, vec![]);
+        check_none(ft, vec![
+            "#!/bin/bash",
+            "echo hello world",
+        ]);
+
+        check_some(ft, 0, "script.sh", vec![
+            "# script.sh",
+            "",
+            "echo hello world",
+        ]);
+
+        check_some(ft, 1, "second_line.sh", vec![
+            "#!/bin/bash",
+            "# second_line.sh",
+            "set -ex",
+            "",
+            "echo hello world",
         ]);
     }
 }

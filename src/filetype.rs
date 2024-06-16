@@ -2,6 +2,7 @@
 pub enum FileType {
     Unknown,
     JavaScript,
+    Bash,
 }
 
 impl From<&Option<String>> for FileType {
@@ -17,6 +18,7 @@ impl From<&str> for FileType {
         match item {
             "javascript" => FileType::JavaScript,
             "js" => FileType::JavaScript,
+            "bash" => FileType::Bash,
             _ => FileType::Unknown,
         }
     }
@@ -26,6 +28,7 @@ impl From<FileType> for String {
     fn from(item: FileType) -> String {
         match item {
             FileType::JavaScript => "javascript",
+            FileType::Bash => "bash",
             FileType::Unknown => "unknown",
         }.into()
     }
