@@ -31,7 +31,9 @@ impl CliArgs {
         let tmp = TempDir::new("glu")?;
         write_files(&tmp, &segments)?;
 
-        Command::new(&self.command)
+        Command::new("sh")
+            .arg("-c")
+            .arg(&self.command)
             .current_dir(&tmp)
             .spawn()?
             .wait()?;
