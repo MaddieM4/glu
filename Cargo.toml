@@ -1,8 +1,14 @@
 [package]
 name = "glu"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "GPL-3.0-only"
+
+description = "Unpacks a Markdown document full of code snippets into a temp directory."
+repository = "https://github.com/MaddieM4/glu"
+readme = "README.md"
+
+# TODO: keywords and categories
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
