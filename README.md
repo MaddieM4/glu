@@ -48,16 +48,6 @@ glu path/to/markdown/file.md
 glu README.md tree
 ```
 
-### Project goals
-
- * [ ] Improve command support to be more shell-like
- * [ ] Comment syntax for lots more languages
- * [ ] Support URLs for downloading a source file
- * [ ] Support Accept header on my personal website to deliver Markdown when requested
- * [ ] Polish up package metadata and make available via `cargo install`
- * [ ] Make sure we have a LICENSE
- * [ ] Support HTML input (as long as it conforms to certain expectations)
-
 ### Contributing
 
 Clone the directory, tinker, make a PR. If you've used Rust and Cargo before,
@@ -68,3 +58,5 @@ Be aware that `src/path_detection.rs` is probably the thing most people will
 care about contributing to, to improve language support. I'll accept these PRs
 very gratefully, but only if they include relevant tests! There are examples
 you can use as a starting point, so that's not as hard as it sounds.
+
+As you can see by the `LICENSE` file, GLU is licensed under the GPLv3.
