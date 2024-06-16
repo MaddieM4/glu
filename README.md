@@ -40,12 +40,15 @@ example, you'd find a file that just contained the `console.log` line.
 ```bash
 # examples.sh
 
-# Unpack to a temp directory and open a bash shell.
+# Install glu via cargo, if you don't have it
+cargo install glu
+
+# Unpack files to a temp directory and open a bash shell.
 # Files will be deleted when shell is closed.
 glu path/to/markdown/file.md
 
 # Bash is just the default, the command to run is an optional second arg.
-glu README.md tree
+glu README.md 'node hello.js'
 ```
 
 ### Contributing
