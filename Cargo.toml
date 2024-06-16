@@ -10,5 +10,6 @@ clap = { version = "4.5.7", features = ["derive"] }
 gray_matter = "0.2.8"
 markdown = "1.0.0-alpha.16"
 regex = "1.10.5"
+remove_dir_all = "0.8.0"
 safe-path = "0.1.0"
 tempdir = "0.3.7"
