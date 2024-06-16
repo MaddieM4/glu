@@ -51,6 +51,16 @@ glu path/to/markdown/file.md
 glu README.md 'node hello.js'
 ```
 
+### What languages are supported for detecting filenames?
+
+Right now, very few. You can help! My criteria for a v1.0.0 release is to have
+parity with the language support list of [PrismJS](https://prismjs.com/#supported-languages),
+for the semi-arbitrary reason that Obsidian uses it, and I write my Markdown
+docs in Obsidian most of the time.
+
+ * Bash
+ * JavaScript
+
 ### Contributing
 
 Clone the directory, tinker, make a PR. If you've used Rust and Cargo before,
