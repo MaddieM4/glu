@@ -49,6 +49,9 @@ glu path/to/markdown/file.md
 
 # Bash is just the default, the command to run is an optional second arg.
 glu README.md 'node hello.js'
+
+# You can also download Markdown files from the internet easily.
+glu https://maddiem4.cc/software/practice/calling_asm_from_c
 ```
 
 ### What languages are supported for detecting filenames?
