@@ -41,6 +41,7 @@ example, you'd find a file that just contained the `console.log` line.
 # examples.sh
 
 # Install glu via cargo, if you don't have it
+# You can find a Rust+Cargo installer at https://rustup.rs/
 cargo install glu
 
 # Unpack files to a temp directory and open a bash shell.
