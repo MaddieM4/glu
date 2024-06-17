@@ -1,11 +1,11 @@
 use tempdir::TempDir;
 use std::process::Command;
-use std::fs;
 use std::error::Error;
 use clap::Parser;
 
 use crate::parse::parse;
 use crate::writer::write_files;
+mod download;
 mod filetype;
 mod segment;
 mod segment_optimizer;
@@ -25,7 +25,7 @@ struct CliArgs {
 
 impl CliArgs {
     fn run(&self) -> Result<(), Box<dyn Error>> {
-        let md_text = fs::read_to_string(&self.mdfile)?;
+        let md_text = download::get_by_path(&self.mdfile)?;
         let segments = parse(&md_text);
         let tmp = TempDir::new("glu")?;
         write_files(&tmp, &segments)?;
