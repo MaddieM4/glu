@@ -10,6 +10,7 @@ pub enum FileType {
     Bash,
     C,
     JavaScript,
+    Rust,
     Unknown,
 }
 
@@ -29,6 +30,8 @@ impl From<&str> for FileType {
             "c" => FileType::C,
             "javascript" => FileType::JavaScript,
             "js" => FileType::JavaScript,
+            "rust" => FileType::Rust,
+            "rs" => FileType::Rust,
             _ => FileType::Unknown,
         }
     }
@@ -41,6 +44,7 @@ impl From<FileType> for String {
             FileType::Bash => "bash",
             FileType::C => "c",
             FileType::JavaScript => "javascript",
+            FileType::Rust => "rust",
             FileType::Unknown => "unknown",
         }.into()
     }
@@ -87,6 +91,7 @@ pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
         FileType::Bash => r"#\s*(\w.*\.sh\b)",
         FileType::C => r"//\s*(\w.*\.(c|h)\b)",
         FileType::JavaScript => r"//\s*(\w.*\.js\b)",
+        FileType::Rust => r"//\s*(\w.*\.rs\b)",
         FileType::Unknown => return None,
     };
     let re = Regex::new(pat).expect("Failed to compile regex");
@@ -182,6 +187,23 @@ mod test {
             "// header.h",
             "",
             "#define FOO 1",
+        ]);
+    }
+
+    #[test]
+    fn test_rust() {
+        let ft = FileType::Rust;
+        check_none(ft, vec![
+            "fn main() {",
+            "    println!('Hello world');",
+            "}",
+        ]);
+        check_some(ft, 0, "foo.rs", vec![
+            "// foo.rs",
+            "",
+            "fn main() {",
+            "    println!('Hello world');",
+            "}",
         ]);
     }
 
