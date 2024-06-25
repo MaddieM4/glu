@@ -1,14 +1,16 @@
 use regex::Regex;
+use strum_macros::EnumIter;
 
 // ----------------------------------------------------------------------------
 // Base FileType
 // ----------------------------------------------------------------------------
 
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Debug, Copy, Clone, EnumIter)]
 pub enum FileType {
     Asm,
     Bash,
     C,
+    CSS,
     JavaScript,
     Rust,
     Unknown,
@@ -28,6 +30,7 @@ impl From<&str> for FileType {
             "asm" => FileType::Asm,
             "bash" => FileType::Bash,
             "c" => FileType::C,
+            "css" => FileType::CSS,
             "javascript" => FileType::JavaScript,
             "js" => FileType::JavaScript,
             "rust" => FileType::Rust,
@@ -43,6 +46,7 @@ impl From<FileType> for String {
             FileType::Asm => "asm",
             FileType::Bash => "bash",
             FileType::C => "c",
+            FileType::CSS => "css",
             FileType::JavaScript => "javascript",
             FileType::Rust => "rust",
             FileType::Unknown => "unknown",
@@ -53,6 +57,7 @@ impl From<FileType> for String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use strum::IntoEnumIterator;
 
     #[test]
     fn from_str() {
@@ -73,6 +78,15 @@ mod tests {
         assert_eq!(String::from(FileType::JavaScript), "javascript".to_string());
         assert_eq!(String::from(FileType::Unknown), "unknown".to_string());
     }
+
+    #[test]
+    fn roundtrip() {
+        for variant in FileType::iter() {
+            let s = String::from(variant);
+            let tripped = FileType::from(s.as_str());
+            assert_eq!(tripped, variant);
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -90,6 +104,7 @@ pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
         FileType::Asm => r";\s*(\w.*\.(s|asm)\b)",
         FileType::Bash => r"#\s*(\w.*\.sh\b)",
         FileType::C => r"//\s*(\w.*\.(c|h)\b)",
+        FileType::CSS => r"/\*\s*(\w.*\.css\b)\s*\*/",
         FileType::JavaScript => r"//\s*(\w.*\.js\b)",
         FileType::Rust => r"//\s*(\w.*\.rs\b)",
         FileType::Unknown => return None,
@@ -187,6 +202,20 @@ mod test {
             "// header.h",
             "",
             "#define FOO 1",
+        ]);
+    }
+
+    #[test]
+    fn test_css() {
+        let ft = FileType::CSS;
+        check_none(ft, vec![]);
+        check_none(ft, vec![
+            "body { margin: 0px }",
+        ]);
+        check_some(ft, 0, "foo.css", vec![
+            "/* foo.css */",
+            "",
+            "body { margin: 0px }",
         ]);
     }
 
