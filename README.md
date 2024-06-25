@@ -65,6 +65,7 @@ docs in Obsidian most of the time.
  * Assembly
  * Bash
  * C
+ * CSS
  * JavaScript
  * Rust
 
