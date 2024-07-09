@@ -1,6 +1,6 @@
 [package]
 name = "glu"
-version = "0.7.8"
+version = "0.7.9"
 edition = "2021"
 license = "GPL-3.0-only"
 
@@ -24,3 +24,7 @@ strum = { version = "0.26", features = ["derive"] }
 strum_macros = "0.26"
 tempdir = "0.3.7"
 url = "2.5.1"
+openssl-sys = "*"
+
+[features]
+vendored = ["openssl-sys/vendored"]
