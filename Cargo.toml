@@ -24,7 +24,7 @@ strum = { version = "0.26", features = ["derive"] }
 strum_macros = "0.26"
 tempdir = "0.3.7"
 url = "2.5.1"
-openssl-sys = "*"
+openssl-sys = "0.9.102"
 
 [features]
 vendored = ["openssl-sys/vendored"]
