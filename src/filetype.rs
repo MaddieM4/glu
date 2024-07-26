@@ -12,6 +12,7 @@ pub enum FileType {
     C,
     CSS,
     JavaScript,
+    Python,
     Rust,
     Unknown,
 }
@@ -33,6 +34,9 @@ impl From<&str> for FileType {
             "css" => FileType::CSS,
             "javascript" => FileType::JavaScript,
             "js" => FileType::JavaScript,
+            "py" => FileType::Python,
+            "python" => FileType::Python,
+            "python3" => FileType::Python,
             "rust" => FileType::Rust,
             "rs" => FileType::Rust,
             _ => FileType::Unknown,
@@ -48,6 +52,7 @@ impl From<FileType> for String {
             FileType::C => "c",
             FileType::CSS => "css",
             FileType::JavaScript => "javascript",
+            FileType::Python => "python",
             FileType::Rust => "rust",
             FileType::Unknown => "unknown",
         }.into()
@@ -106,6 +111,7 @@ pub fn detect_path(ft: FileType, lines: &Vec<&str>) -> Option<PathDetection> {
         FileType::C => r"//\s*(\w.*\.(c|h)\b)",
         FileType::CSS => r"/\*\s*(\w.*\.css\b)\s*\*/",
         FileType::JavaScript => r"//\s*(\w.*\.js\b)",
+        FileType::Python => r"#\s*(\w.*\.py\b)",
         FileType::Rust => r"//\s*(\w.*\.rs\b)",
         FileType::Unknown => return None,
     };
@@ -216,6 +222,19 @@ mod test {
             "/* foo.css */",
             "",
             "body { margin: 0px }",
+        ]);
+    }
+
+    #[test]
+    fn test_python() {
+        let ft = FileType::Python;
+        check_none(ft, vec![
+            "print(123)",
+        ]);
+        check_some(ft, 0, "foo.py", vec![
+            "# foo.py",
+            "",
+            "print(123)",
         ]);
     }
 

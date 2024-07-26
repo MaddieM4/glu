@@ -1,6 +1,6 @@
 [package]
 name = "glu"
-version = "0.7.9"
+version = "0.7.26"
 edition = "2021"
 license = "GPL-3.0-only"
 
