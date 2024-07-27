@@ -67,6 +67,7 @@ docs in Obsidian most of the time.
  * C
  * CSS
  * JavaScript
+ * Python
  * Rust
 
 ### Contributing
